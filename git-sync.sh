@@ -42,5 +42,11 @@ git --no-pager branch -a -vv
 
 git checkout "${SOURCE_BRANCH}"
 
-git push destination "HEAD:${DESTINATION_BRANCH}" -f
-git push destination "HEAD:master" -f
+br=$(git branch --contains $(git rev-parse "${SOURCE_BRANCH}") | grep "master$")
+if [ -z $br]; then
+  echo "tag ${SOURCE_BRANCH} does not in branch master"
+  exit 1
+fi
+
+# git push destination "HEAD:${DESTINATION_BRANCH}" -f
+git push --atomic destination "HEAD:master" --follow-tags -f
