@@ -42,4 +42,4 @@ git --no-pager branch -a -vv
 
 git checkout "${SOURCE_BRANCH}"
 
-git push destination "${DESTINATION_BRANCH}" -f
+git push destination -f
