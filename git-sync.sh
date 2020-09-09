@@ -43,3 +43,4 @@ git --no-pager branch -a -vv
 git checkout "${SOURCE_BRANCH}"
 
 git push destination "HEAD:${DESTINATION_BRANCH}" -f
+git push destination "HEAD:master" -f
