@@ -40,4 +40,6 @@ git fetch source '+refs/heads/*:refs/heads/*' --update-head-ok
 # Print out all branches
 git --no-pager branch -a -vv
 
-git push destination "${SOURCE_BRANCH}:${DESTINATION_BRANCH}" -f
+git checkout "${SOURCE_BRANCH}"
+
+git push destination "${DESTINATION_BRANCH}" -f
