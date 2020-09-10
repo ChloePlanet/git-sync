@@ -3,9 +3,9 @@
 set -e
 
 SOURCE_REPO=$1
-SOURCE_BRANCH=$2
-DESTINATION_REPO=$3
-DESTINATION_BRANCH=$4
+DESTINATION_REPO=$2
+TAG=$3
+BRANCH=$4
 
 if ! echo $SOURCE_REPO | grep '.git'
 then
@@ -28,8 +28,12 @@ then
   fi
 fi
 
-echo "SOURCE=$SOURCE_REPO:$SOURCE_BRANCH"
-echo "DESTINATION=$DESTINATION_REPO:$DESTINATION_BRANCH"
+
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+printf "${GREEN}SOURCE_REPO=$SOURCE_REPO:$BRANCH (tag: $TAG)${NC}\n"
+printf "${GREEN}DESTINATION_REPO=$DESTINATION_REPO:$BRANCH (tag: $TAG)${NC}\n"
 
 git clone "$SOURCE_REPO" /root/source --origin source && cd /root/source
 git remote add destination "$DESTINATION_REPO"
@@ -40,13 +44,19 @@ git fetch source '+refs/heads/*:refs/heads/*' --update-head-ok
 # Print out all branches
 git --no-pager branch -a -vv
 
-git checkout "${SOURCE_BRANCH}"
-
-br=$(git branch --contains $(git rev-parse "${SOURCE_BRANCH}") | grep "master$")
-if [ -z $br]; then
-  echo "tag ${SOURCE_BRANCH} does not in branch master"
+git config --global advice.detachedHead false
+coerr=$(git checkout "refs/tags/${TAG}" 2>&1 | grep error)
+if [[ -n "$coerr" ]]; then
+  echo "::set-output name=msg::$coerr"
   exit 1
 fi
 
-# git push destination "HEAD:${DESTINATION_BRANCH}" -f
-git push --atomic destination "HEAD:master" --follow-tags -f
+br=$(git branch --contains $(git rev-parse "${TAG}") | grep "${BRANCH}$")
+if [[ -z "$br" ]]; then
+  msg="tag ${TAG} does not in branch ${BRANCH}"
+  echo "::set-output name=msg::$msg"
+  exit 1
+fi
+
+git push --atomic destination "HEAD:${BRANCH}" --follow-tags -f
+echo "::set-output name=msg::success"
