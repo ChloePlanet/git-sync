@@ -58,5 +58,6 @@ if [[ -z "$br" ]]; then
   exit 1
 fi
 
+echo "Hi there"
 git push --atomic destination "HEAD:${BRANCH}" --follow-tags -f
 echo "::set-output name=msg::success"
